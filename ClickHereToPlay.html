@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title> Game dành riêng cho NL </title>
+
+	<style>
+		canvas{
+			border: 1px solid rgb(0, 0, 0);
+		}
+	</style>
+</head>
+<body>
+	<canvas id="game" width="500" height="700">
+	<img id="ball1" src="./ball1.png" />
+	<img id="ball2" src="./ball2.png" />
+	<img id="ball3" src="./ball3.png" />
+	<img id="ball4" src="./ball4.png" />
+	<img id="ball5" src="./ball5.png" />
+	<img id="ball6" src="./ball6.png" />
+	<img id="ball7" src="./ball7.png" />
+	<img id="ball8" src="./ball8.png" />
+	<img id="paddle" src="./paddle.png" />
+	</canvas>
+
+	<script>
+var canvas = document.getElementById("game");
+var pad = document.getElementById("paddle");
+var ball1 = document.getElementById("ball1");
+var ball2 = document.getElementById("ball2");
+var ball3 = document.getElementById("ball3");
+var ball4 = document.getElementById("ball4");
+var ball5 = document.getElementById("ball5");
+var ball6 = document.getElementById("ball6");
+var ball7 = document.getElementById("ball7");
+var ball8 = document.getElementById("ball8");
+var ball=[ball1,ball2,ball3,ball4,ball5,ball6,ball7,ball8];
+var context = canvas.getContext("2d");
+//var playAgain = true;
+var man = 0;
+function ngaunhien(x,y)
+{
+	return Math.floor(Math.random()*(y-x+1))+x;
+}
+var indexBall = ngaunhien(0,7);
+var colorBricks=
+{
+	r:ngaunhien(100,200),
+	g:ngaunhien(100,200),
+	b:ngaunhien(100,200)
+};
+
+function changeColor(obj)
+{
+	obj.r = ngaunhien(100,200);
+	obj.g = ngaunhien(100,200);
+	obj.b = ngaunhien(100,200);
+}
+
+
+var radius = 10;
+var x = ngaunhien(radius+10,500-(radius+10));
+var y = ngaunhien(320,350);
+var dx = 5, dy = 5;
+
+var paddle = {
+	width: 500,
+	height: 10,
+	x: canvas.width/2,
+	y: canvas.height-10,
+	speed: 10,
+	isMovingLeft: false,
+	isMovingRight: false
+};
+var bricks = 
+{
+	le: 25,
+	width: 70, 
+	height: 10, 
+	cachngang: 25, 
+	cachdoc: 20,
+	cachtutrenxuong: 40
+};
+var MaxScore=0;
+var playerScore=0;
+var isWinGame=false;
+
+listBricks=[];
+//thiết lập gạch
+function setUpBricks(man)
+{
+	if (man==3)
+		{
+		for(var i=1 ; i<4 ; i++ )
+			{
+				for (var j=0 ; j<5 ; j++)
+				{
+					listBricks.push({
+						x: bricks.le+j*bricks.width+j*bricks.cachngang,
+						y: bricks.cachtutrenxuong+i*bricks.height+i*bricks.cachdoc,
+						width: bricks.width,
+						height: bricks.height,
+						isBroke: false
+					})
+					MaxScore++;
+				}
+			}
+
+		for(var i=0 ; i<1 ; i++ )
+			{
+				for (var j=1 ; j<4; j=j+2)
+				{
+					listBricks.push({
+						x: bricks.le+j*bricks.width+j*bricks.cachngang,
+						y: bricks.cachtutrenxuong+i*bricks.height+i*bricks.cachdoc,
+						width: bricks.width,
+						height: bricks.height,
+						isBroken: false
+					})
+					MaxScore++;
+				}
+			}
+
+		for(var i=4 ; i<5 ; i++ )
+			{
+				for (var j=1 ; j<4 ; j++)
+				{
+					listBricks.push({
+						x: bricks.le+j*bricks.width+j*bricks.cachngang,
+						y: bricks.cachtutrenxuong+i*bricks.height+i*bricks.cachdoc,
+						width: bricks.width,
+						height: bricks.height,
+						isBroke: false
+					})
+					MaxScore++;
+				}
+			}
+		for(var i=5 ; i<6 ; i++ )
+			{
+				for (var j=2 ; j<3 ; j++)
+				{
+					listBricks.push({
+						x: bricks.le+j*bricks.width+j*bricks.cachngang,
+						y: bricks.cachtutrenxuong+i*bricks.height+i*bricks.cachdoc,
+						width: bricks.width,
+						height: bricks.height,
+						isBroken: false
+					})
+					MaxScore++;
+				}
+			}
+		}
+		/*************man1**************/
+	if (man==0)
+	{
+		
+		for (var i=0 ; i<3 ; i++ )
+		{
+			for (var j=0 ; j<5 ; j=j+4)
+			{
+				listBricks.push({
+					x: bricks.le+j*50,
+					y: bricks.cachtutrenxuong + bricks.cachdoc + i*60 + i*bricks.cachdoc,
+					width:30,
+					height:60,
+					isBroken: false
+				})
+				MaxScore++;
+			}
+		}
+		for (var i=0 ; i<3 ; i++)
+		{
+			listBricks.push({
+				x: 270,
+				y: bricks.cachtutrenxuong + bricks.cachdoc + i*60 + i*bricks.cachdoc,
+				width:30,
+				height:60,
+				isBroken: false
+			})
+			MaxScore++;
+		}
+
+		listBricks.push({
+			x: 63,
+			y: 93,
+			width:30,
+			height:30,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 93+10,
+			y: 123+10,
+			width:30,
+			height:30,
+			isBroken: false
+		})
+		MaxScore++;
+		
+		listBricks.push({
+			x: 123+20,
+			y: 153+20,
+			width:30,
+			height:30,
+			isBroken: false
+		})
+		MaxScore++;
+		
+		listBricks.push({
+			x: 153+30,
+			y: 183+30,
+			width:30,
+			height:30,
+			isBroken: false
+		})
+		MaxScore++;
+		
+		for (var i=0 ; i<3 ; i++)
+		{
+			listBricks.push({
+				x: 310+i*50,
+				y: 260,
+				width:40,
+				height:20,
+				isBroken: false
+			})
+			MaxScore++;
+		}
+
+		listBricks.push({
+			x: 330,
+			y: 140,
+			width:110,
+			height:110,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 350,
+			y: 60,
+			width:80,
+			height:20,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 410,
+			y: 83,
+			width:30,
+			height:40,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 380,
+			y: 110,
+			width:25,
+			height:25,
+			isBroken: false
+		})
+		MaxScore++;	
+	}
+	/********Man2SI****/
+	if (man==1)
+	{
+		listBricks.push({
+			x: 40,
+			y: 40,
+			width: 70,
+			height: 30,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 130,
+			y: 40,
+			width: 70,
+			height: 30,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 40,
+			y: 80,
+			width: 30,
+			height: 40,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 40,
+			y: 130,
+			width: 70,
+			height: 30,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 130,
+			y: 130,
+			width: 90,
+			height: 30,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 190,
+			y: 170,
+			width: 30,
+			height: 70,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 40,
+			y: 210,
+			width: 60,
+			height: 30,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 113,
+			y: 210,
+			width: 60,
+			height: 30,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		for (var i=0 ; i<3 ; i++)
+		{
+			listBricks.push({
+				x: 290+15,
+				y: 40 + i*56 + i*15,
+				width: 30,
+				height: 56,
+				isBroken: false
+			})
+			MaxScore++;	
+		}
+
+		listBricks.push({
+			x: 250+15,
+			y: 40,
+			width: 30,
+			height: 30,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 330+15,
+			y: 40,
+			width: 30,
+			height: 30,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 250+15,
+			y: 207,
+			width: 30,
+			height: 30,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 330+15,
+			y: 207,
+			width: 30,
+			height: 30,
+			isBroken: false
+		})
+		MaxScore++;	
+
+	}
+	if (man==2)
+	{
+		listBricks.push({
+			x: 45,
+			y: 40,
+			width: 30,
+			height: 80,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 45,
+			y: 140,
+			width: 30,
+			height: 80,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 85,
+			y: 40,
+			width: 40,
+			height: 15,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 135,
+			y: 40,
+			width: 40,
+			height: 15,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 85,
+			y: 205,
+			width: 40,
+			height: 15,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 135,
+			y: 205,
+			width: 40,
+			height: 15,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 175,
+			y: 60,
+			width: 15,
+			height: 40,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 180,
+			y: 112,
+			width: 15,
+			height: 40,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 175,
+			y: 160,
+			width: 15,
+			height: 40,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 250+30,
+			y: 36,
+			width: 90,
+			height: 26,
+			isBroken: false
+		})
+		MaxScore++;	
+
+		listBricks.push({
+			x: 223+30,
+			y: 43,
+			width: 20,
+			height: 60,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 223+30,
+			y: 143,
+			width: 20,
+			height: 75,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 345+30,
+			y: 43,
+			width: 20,
+			height: 60,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 345+30,
+			y: 143,
+			width: 20,
+			height: 75,
+			isBroken: false
+		})
+		MaxScore++;
+
+		for (var i=0 ; i<3 ; i++)
+		{
+			listBricks.push({
+				x: 234+i*50 +i*15,
+				y: 113,
+				width: 60,
+				height: 23,
+				isBroken: false
+			})
+			MaxScore++;
+		}
+	}
+/****Man4 :1997Vlog********* */
+	if (man==4)
+	{
+		listBricks.push({
+			x: 40,
+			y: 40,
+			width: 20,
+			height: 60,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 40,
+			y: 115,
+			width: 20,
+			height: 60,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 25,
+			y: 38,
+			width: 13,
+			height: 14,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 12,
+			y: 56,
+			width: 17,
+			height: 30,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 87,
+			y: 40,
+			width: 80,
+			height: 16,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 87,
+			y: 100,
+			width: 80,
+			height: 16,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 87,
+			y: 160,
+			width: 50,
+			height: 18,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 87,
+			y: 64,
+			width: 14,
+			height: 30,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 146,
+			y: 63,
+			width: 25,
+			height: 30,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 146,
+			y: 122,
+			width: 22,
+			height: 52,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 187+15,
+			y: 40,
+			width: 77,
+			height: 20,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 277+25,
+			y: 40,
+			width: 77,
+			height: 20,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 255,
+			y: 67,
+			width: 25,
+			height: 40,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 255+(277-187)+10,
+			y: 67,
+			width: 25,
+			height: 40,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 235,
+			y: 114,
+			width: 26,
+			height: 30,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 235+(277-187)+10,
+			y: 114,
+			width: 26,
+			height: 30,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 216,
+			y: 150,
+			width: 25,
+			height: 27,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 216+(277-187)+10,
+			y: 150,
+			width: 25,
+			height: 27,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 40,
+			y: 230,
+			width: 25,
+			height: 25,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 40+20,
+			y: 230+30,
+			width: 25,
+			height: 25,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 40+20*2,
+			y: 230+30*2,
+			width: 25,
+			height: 25,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 40+20*3,
+			y: 230+30*3,
+			width: 25,
+			height: 25,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 40+20*2+40,
+			y: 230+30*2,
+			width: 25,
+			height: 25,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 40+20+80,
+			y: 230+30,
+			width: 25,
+			height: 25,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 40+120,
+			y: 230,
+			width: 25,
+			height: 25,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 200,
+			y: 230,
+			width: 20,
+			height: 120,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 240,
+			y: 270,
+			width: 80,
+			height: 80,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 340,
+			y: 260,
+			width: 100,
+			height: 100,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 400,
+			y: 370,
+			width: 36,
+			height: 45,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 300,
+			y: 430,
+			width: 140,
+			height: 20,
+			isBroken: false
+		})
+		MaxScore++;
+
+		listBricks.push({
+			x: 305,
+			y: 390,
+			width: 30,
+			height: 35,
+			isBroken: false
+		})
+		MaxScore++;
+
+
+	}
+}
+//thiết lập xong gạch
+
+var isGameOver = false;
+
+//document.addEventListener("keypress",function(event){	console.log(event);})
+document.addEventListener("keyup",function(event){
+	if(event.keyCode == 37){
+		paddle.isMovingLeft = false;
+	} else if(event.keyCode == 39){
+		paddle.isMovingRight = false;
+	}
+})
+document.addEventListener("keydown",function(event){
+	if(event.keyCode == 37)
+	{
+		paddle.isMovingLeft = true;
+	} else if(event.keyCode == 39)
+	{
+		paddle.isMovingRight = true;
+	}
+
+})
+function drawBall()
+{
+context.beginPath();
+context.arc(x,y,radius,0,Math.PI*2);
+context.drawImage(ball[indexBall],x-radius,y-radius,radius*2,radius*2)
+context.closePath();
+}
+
+function drawPaddle(){
+	context.beginPath();
+	context.drawImage(pad,paddle.x, paddle.y, paddle.width, paddle.height)
+	context.closePath();
+}
+
+function drawBricks()
+{
+	listBricks.forEach(function(b){
+		context.beginPath();
+		if (!b.isBroken)
+			{context.rect(b.x,b.y,b.width,b.height);}
+		context.fillStyle = "rgb("+colorBricks.r+","+colorBricks.g+","+colorBricks.b+")";
+		context.fill();
+		context.closePath();
+
+		if (man==0)
+		{
+			context.clearRect(350,160,70,70);
+		}
+
+		if (man==4)
+		{
+			context.clearRect(260,290,40,40);
+			context.clearRect(340+25,260+25,55,55);
+		}
+	})
+}
+
+function vachamthanhchan()
+{
+	if (x<=radius || x>=canvas.width-radius)
+		{	
+			dx*=-1;
+		}
+
+	if (y<=radius || (y>=canvas.height-paddle.height-radius+3 &&
+	 				 (x>=paddle.x && x<=paddle.x+paddle.width)))
+		{
+			dy*=-1;
+		}	
+}
+function vachamgach()
+{
+	listBricks.forEach(function(b){
+		if(!b.isBroken && x>=b.x-radius && x<=b.x+b.width+radius && y<=b.y+b.height+radius && y>=b.y-radius)
+		{
+			playerScore++;
+			if (x>=b.x && x<=b.x+paddle.width)
+			{
+				dy*=-1;
+			}
+			else
+			{
+				dx*=-1;
+			}
+			b.isBroken = true;
+		}
+	})
+}
+function capnhattoado()
+{
+	x += dx;
+	y += dy;	
+}
+
+function dichuyenpaddle()
+{
+	if (paddle.isMovingLeft && paddle.x>0)
+		{paddle.x -=paddle.speed;}
+	else if (paddle.isMovingRight && paddle.x<canvas.width-paddle.width)
+		{paddle.x +=paddle.speed;}
+}
+
+function checkGameOver()
+{
+		if (y>canvas.height-radius)
+			{isGameOver = true;}
+}
+function checkWin()
+{
+	if (playerScore==MaxScore)
+	{
+		isWinGame=true;
+	}
+}
+function drawScore()
+{
+	context.beginPath();
+	context.font = '48px serif';
+	context.fillStyle = "black";
+	context.fillText("Score:"+playerScore,390,50,90);
+	context.closePath();
+}
+function drawBackGround()
+{
+	context.drawImage(bg,0,0,canvas.width,canvas.height);
+}
+function resetGame()
+{
+	//reset color
+	changeColor(colorBricks);
+	//reset score
+	playerScore=0;
+	MaxScore=0;
+
+	//xây lại gạch
+	man=0;
+	listBricks=[];
+	setUpBricks(man);
+
+	//reset x,y
+	x = ngaunhien(radius+10,500-(radius+10));
+	y = ngaunhien(320,350);
+
+	//reset paddle
+	paddle.isMovingLeft = false;
+	paddle.isMovingRight = false;
+	paddle.x = canvas.width/2;
+
+	//change ball
+	indexBall = ngaunhien(0,7);
+
+	//reset speed
+	dx = 5;
+	dy = 5;
+	
+}
+
+function nextMap()
+{
+	isWinGame=false;
+	//new color
+	changeColor(colorBricks);
+	//new man
+	man++;
+	paddle.width-=10;
+	//paddle.speed = paddle.speed/2 + 1.5;
+	listBricks=[];
+	/*if (dx>0)
+	{
+		dx=dx/2+0.4;
+	}
+	else
+	{
+		dx=dx/2-0.4;
+	}
+	
+	if (dy>0)
+	{
+		dy=dy/2+0.4;
+	}
+	else
+	{
+		dy=dy/2-0.4;
+	}*/
+	setUpBricks(man);
+
+}
+function draw()
+{
+		if (!isGameOver)
+		{
+			//vebong
+			//drawBackGround();
+			context.clearRect(0,0,canvas.width,canvas.height)
+
+			drawBricks();
+
+			drawBall();
+
+			drawPaddle();
+
+			drawScore();
+
+			vachamthanhchan();
+
+			vachamgach();
+
+			capnhattoado();
+
+			dichuyenpaddle();
+
+			checkWin();
+
+			checkGameOver();
+
+			window.requestAnimationFrame(draw);
+		}	
+		else
+		{
+			playAgain = confirm("Nguyễn Lỏ sida,Do NL try again?");
+			if (playAgain)
+			{
+				//isGameOver=false;
+				//resetGame();
+				//window.requestAnimationFrame(draw);
+				location.reload();
+			}
+			else
+			{
+				context.clearRect(0,0,1000,1000);
+			}
+		}
+		if(isWinGame)
+		{
+			if (man==4)
+			{
+				alert("Mé Nguyễn Lỏ hack!!!")
+			}
+			else
+			{
+				cancelAnimationFrame(draw);
+				nextMap();
+				draw();
+			}
+		}
+}
+setUpBricks(man);
+draw();
+
+
+	</script>
+
+</body>
+</html>
