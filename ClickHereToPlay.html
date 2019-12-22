@@ -980,7 +980,7 @@ function nextMap()
 	//new man
 	man++;
 	paddle.width-=10;
-	//paddle.speed = paddle.speed/2 + 1.5;
+	paddle.speed = paddle.speed/2 + 1.5;
 	listBricks=[];
 	/*if (dx>0)
 	{
@@ -1062,6 +1062,7 @@ function draw()
 		}
 }
 setUpBricks(man);
+
 draw();
 
 
